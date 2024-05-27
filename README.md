@@ -734,6 +734,8 @@
     - 하이버네이트는 JPA 인터페이스를 구현한 구현체이자 자바용 ORM 프레임워크이다.내부적으로는 JDBC API를 사용한다.
     - 하이버네이트 목표는 자바 객체를 통해 데이터베이스 종류에 상관없이 데이터베이스를 자유자재로 사용할 수 있게 하는 것이다.
     
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/a44870d4-429c-440a-a7e8-d2071ad7a9c8/431b4eec-0b5b-4640-881d-b22ae0d820c3/Untitled.png)
+    
     (정리가 잘 되어있는곳)
     
     https://suhwan.dev/2019/02/24/jpa-vs-hibernate-vs-spring-data-jpa/
@@ -754,7 +756,10 @@
     - 예를 들어 회원 2명이 동시에 회원 가입을 하려는 경우 엔티티 매니저는 다음과 같이 업무를 처리한다.
         - 회원 1의 요청에 대해서 가입 처리를 할 엔티티 매니저를 엔티티 매니저 팩토리가 생성하면 이를 통해 가입 처리해 데이터베이스에 회원 정보를 저장한다.(회원 2도 마찬가지)
         - 그리고 회원 1,2를 위해 생성된 엔티티 매니저는 필요한 시점에 데이터베이스와 연결한 뒤에 쿼리한다.
-    - 스프링 부트에서는 내부에서 엔티티 매니저 팩토리를 한나만 생성해서 관리하고 @PersistenceContext 또는 @Autowired 애너테이션을 사용해서 엔티티 매니저를 사용한다.
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/a44870d4-429c-440a-a7e8-d2071ad7a9c8/b481deb0-f19e-4d52-9ab2-8c5ce2a53b08/Untitled.png)
+    
+    - 스프링 부트에서는 내부에서 엔티티 매니저 팩토리를 gksk만 생성해서 관리하고 @PersistenceContext 또는 @Autowired 애너테이션을 사용해서 엔티티 매니저를 사용한다.
     
     ```java
     @PersistenceContext
@@ -885,3 +890,57 @@
         }
     }
     ```
+    
+    ```java
+    @NoArgsConstructor // 2. 기본 생성자
+    @AllArgsConstructor
+    @Getter
+    @Entity // 1. 엔티티로 지정
+    public class Member {
+        @Id  // 3. id 필드를 기본키로 지정
+        @GeneratedValue(strategy = GenerationType.IDENTITY) //4. 기본키 자동으로 1씩 증가
+        @Column(name = "id", updatable = false)
+        private Long id; // DB 테이블의 id 칼럼과 매칭
+    
+        @Column(name = "name", updatable = false)  // 5. name이라는 not null 컬럼과 매핑
+        private String name; // DB 테이블의 name 컬럼과 매칭
+    }
+    ```
+    
+    1. @Entity 애너테이션은 Member 객체를 JPA가 관리하는 엔티티로 지정한다.즉, Member 클래스와 실제 데이터베이스의 테이블을 매핑시킨다. 
+        - name 파라터를 사용하면 name의 값을 가진 테이블 이름과 매핑되고 이름을 지정하지 않으면 클래스 이름과 같은 이름의 테이블과 매핑된다.
+    2. 엔티티는 반드시 기본 생성자가 있어야하고, 접근 제어자는 public 또는 protected 이어야한다.
+    3. @Id는 Long 타입의 id 필드를 테이블의 기본키로 지정ㅎ나다.
+    4. @GeneratedValue는 기본키의 생성 방식을 결정한다.여기서는 자동으로 기본키가 증가하도록 지정했다.
+        - AUTO : 선택한 데이터베이스 방안(dialect)에 따라 방식을 자동으로 선택(기본값)
+        - IDENTITY : 기본 키 생성을 데이터베이스에 위임(=AUTO_INCREMENT)
+        - SEQUENCE : 데이터베이스 시퀀스를 사용해서 기본키를 할당하는 방법.오라클에서 사용.
+        - TABLE : 키 생성 테이블 사용
+    5. @Column 애너테이션은 데이터베이스의 컬럼과 필드를 매핑해준다.
+        - name : 필드와 매핑할 컬럼 이름.설정하지 않으면 필드 이름을 짖어해준다.
+        - nullable : 컬럼의 null 허용 여부. 설정하지 않으면 true(nullable)
+        - unique : 컬럼의 유일한 값(unique) 여부, 설정하지 않으면 false(non-unique)
+        - columnDefinition : 컬럼 정보 설정.default 값 설정 가능.
+    
+    ```java
+    @Repository
+    public interface MemberRepository extends JpaRepository<Member, Long> {
+    }
+    ```
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/a44870d4-429c-440a-a7e8-d2071ad7a9c8/1f928088-7703-4984-ba75-72a3ee213bc9/Untitled.png)
+    
+    - 리포지토리는 엔티티에 있는 데이터을 조회하거나 저장,변경,삭제를 할 때 사용하는 인터페이스로,스프링 데이터 JPA에서 제공하는 인터페이스인 JpaRepository 클래스를 상속받아 간단히 구현할 수 있다.
+- Part 6
+    
+    ## API와 REST API
+    
+    ### API
+    
+    ### REST API
+    
+    - REST API는 웹의 장점을 최대한 활용하는 API이다.
+    - REST는 Representational State Transfer를 줄인 표현으로 자원을 이름으로 구분해 자원의 상태를 주고 받는 API 방식이다.
+    - REST API는 URL 설계 방식을 말한다.
+    
+    ### REST API의 특징
